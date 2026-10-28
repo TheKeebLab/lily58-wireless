@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2020 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/ext_power.h>
+#include <dt-bindings/zmk/outputs.h>
+
+// Wake-up key: top outer corner (Esc / `), row pin 5, column pin 19 on both halves.
+#define TKL_WAKE_ROW 5
+#define TKL_WAKE_COL 19
+// Switch-off: Esc + left Shift held together.
+#define TKL_OFF_KEYS 0 36
+#include "tkl_power.dtsi"
+#include "tkl_brightness.dtsi"
+
+// Our Lily58 has no rotary encoder: disable the optional one that the ZMK lily58
+// shield turns on. It lives here because ZMK reads the keymap after
+// the shield files; a config .overlay is read before them and can't reach the node.
+&left_encoder {
+    status = "disabled";
+};
+
+/ {
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+// ------------------------------------------------------------------------------------------------------------
+// |  ESC  |  1  |  2  |  3   |  4   |  5   |                   |  6   |  7    |  8    |  9   |   0   |   `   |
+// |  TAB  |  Q  |  W  |  E   |  R   |  T   |                   |  Y   |  U    |  I    |  O   |   P   |   -   |
+// |  CTRL |  A  |  S  |  D   |  F   |  G   |                   |  H   |  J    |  K    |  L   |   ;   |   '   |
+// | SHIFT |  Z  |  X  |  C   |  V   |  B   |   "["  |  |  "]"  |  N   |  M    |  ,    |  .   |   /   | SHIFT |
+//                     | ALT  | GUI  | LOWER|  SPACE |  | ENTER | RAISE| BSPC  | GUI   |
+            bindings = <
+&kp ESC   &kp N1 &kp N2 &kp N3   &kp N4   &kp N5                     &kp N6 &kp N7   &kp N8    &kp N9  &kp N0   &kp GRAVE
+&kp TAB   &kp Q  &kp W  &kp E    &kp R    &kp T                      &kp Y  &kp U    &kp I     &kp O   &kp P    &kp MINUS
+&kp LCTRL &kp A  &kp S  &kp D    &kp F    &kp G                      &kp H  &kp J    &kp K     &kp L   &kp SEMI &kp SQT
+&kp LSHFT &kp Z  &kp X  &kp C    &kp V    &kp B  &kp LBKT   &kp RBKT &kp N  &kp M    &kp COMMA &kp DOT &kp FSLH &kp RSHFT
+                        &kp LALT &kp LGUI &mo 1  &kp SPACE  &kp RET  &mo 2  &kp BSPC &kp RGUI
+            >;
+        };
+
+        lower_layer {
+// ------------------------------------------------------------------------------------------------------------
+// | BTCLR | BT1 | BT2 |  BT3 |  BT4 |  BT5 |                   |  USB |  BLE  |SCR BRI|      |       |       |
+// |  F1   |  F2 |  F3 |  F4  |  F5  |  F6  |                   |  F7  |  F8   |  F9   |  F10 |  F11  |  F12  |
+// |   `   |  !  |  @  |  #   |  $   |  %   |                   |  ^   |  &    |  *    |  (   |   )   |   ~   |
+// |       |EP ON|EPOFF|EP TOG|      |      |        |  |       |      |  -    |  +    |  {   |   }   |  "|"  |
+//                     |      |      |      |        |  |       |      |       |       |
+            bindings = <
+&bt BT_CLR &bt BT_SEL 0     &bt BT_SEL 1      &bt BT_SEL 2      &bt BT_SEL 3 &bt BT_SEL 4                 &out OUT_USB &out OUT_BLE &scr_bri &trans  &trans    &trans
+&kp F1     &kp F2           &kp F3            &kp F4            &kp F5       &kp F6                       &kp F7    &kp F8    &kp F9    &kp F10   &kp F11   &kp F12
+&kp GRAVE  &kp EXCL         &kp AT            &kp HASH          &kp DOLLAR   &kp PRCNT                    &kp CARET &kp AMPS  &kp ASTRK &kp LPAR  &kp RPAR  &kp TILDE
+&trans     &ext_power EP_ON &ext_power EP_OFF &ext_power EP_TOG &trans       &trans    &trans   &trans    &trans    &kp MINUS &kp PLUS  &kp LBRC  &kp RBRC  &kp PIPE
+                                              &trans            &trans       &trans    &trans   &trans    &trans    &trans    &trans
+            >;
+        };
+
+        raise_layer {
+// ------------------------------------------------------------------------------------------------------------
+// |       |     |     |      |      |      |                   |      |       |       |      |       |       |
+// |   `   |  1  |  2  |  3   |  4   |  5   |                   |  6   |   7   |   8   |  9   |   0   |       |
+// |   F1  |  F2 |  F3 |  F4  |  F5  |  F6  |                   |      |   <-  |   v   |  ^   |  ->   |       |
+// |   F7  |  F8 |  F9 |  F10 |  F11 |  F12 |        |  |       |  +   |   -   |   =   |  [   |   ]   |   \   |
+//                     |      |      |      |        |  |       |      |       |       |
+            bindings = <
+&trans    &trans &trans &trans  &trans  &trans                       &trans      &trans    &trans    &trans   &trans    &trans
+&kp GRAVE &kp N1 &kp N2 &kp N3  &kp N4  &kp N5                       &kp N6      &kp N7    &kp N8    &kp N9   &kp N0    &trans
+&kp F1    &kp F2 &kp F3 &kp F4  &kp F5  &kp F6                       &trans      &kp LEFT  &kp DOWN  &kp UP   &kp RIGHT &trans
+&kp F7    &kp F8 &kp F9 &kp F10 &kp F11 &kp F12   &trans   &trans    &kp KP_PLUS &kp MINUS &kp EQUAL &kp LBKT &kp RBKT  &kp BSLH
+                        &trans  &trans  &trans    &trans   &trans    &trans      &trans    &trans
+            >;
+        };
+
+        // Empty layers that ZMK Studio can enable and fill without reflashing.
+        extra1 {
+            status = "reserved";
+        };
+
+        extra2 {
+            status = "reserved";
+        };
+
+        extra3 {
+            status = "reserved";
+        };
+    };
+};
